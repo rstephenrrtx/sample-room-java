@@ -1,0 +1,39 @@
+ 	Goal:  Use a REST API call to look up current weather conditions for a given zipcode
+	Data source:  IBM Weather Company data (others available)
+		Where:  Where is it located.
+		Ts&Cs:  Limits, etc...
+		Credentials:  How to find
+		Docs:  Show the REST API page...and Swagger doc
+		Focus on one API:  By zipcode
+	Add a new command:  Switch statement
+	Add the new command to the /help:  addCommand()
+	Parse/validate input:  Check for a zip code. 
+		Why - Design.  Return codes are limited.  (Extra:  Validate with USPS?)
+			Quicker feedback to user vs a lookup
+			Data limits
+	Build the URL
+	Make the connection
+		What could happen?
+		try/catch
+	Retrieve data
+	Parse data
+		Look at sample data/Swagger doc
+	Build response/format
+		JSON data fields
+		Markdown code for formatting
+	Display message
+	
+  This walk-through will demonstrate how you can use your Game On! room to access REST API data services.  We will be starting with the sample java file and adding code.  It is recommended for you to follow and setup your own sample java room first following the steps outlined here:  https://github.com/gameontext/sample-room-java
+  
+ For our example, we will be retrieving current weather conditions using the IBM Weather Company data service on IBM Bluemix.  
+    Note: Other data sources could be used where data formats may vary.
+ 
+ _Data service setup_
+ In order to access the data, you will need to create a trial service on IBM Bluemix.  Login using your Bluemix account and look under *Catalog* then *Services*->*Data & Analytics*.  Scroll until you see *Weather Company Data* and click.  Review the terms and limits of the service and create a free account.
+After creation, click on your service from your dashboard.  There are three tabs shown.  Under *Service Credentials* you will ifnd the userid and password needed to access the REST APIs.  You can see these under the *View Credentials* action.  Note:  The credentials are different from your Bluemix ID.  Under *Manage* you can review the details of the service offerings.  Under *Get Started* we want to choose *APIs* to view this link:  https://twcservice.mybluemix.net/rest-api/
+
+This page will show the REST APIs available.  Feel free to peruse the APIs and even try them by supplying your credentials.  We will use the *Current Conditions : Weather Observations*-> Site-Based Current Conditions by Postal Code.  Our example will focus on US based postal codes.
+
+Now that your service has been created and you have explored the offerings, let's write some code!
+
+_Programatically accessing the API_
