@@ -1,12 +1,12 @@
- 		
-  This walk-through will demonstrate how you can use your Game On! room to access REST API data services.  We will be starting with the sample java file and adding code.  It is recommended for you to follow and setup your own sample java room first following the steps outlined here:  https://github.com/gameontext/sample-room-java
+This walk-through will demonstrate how you can use your Game On! room to access REST API data services.  We will be starting with the sample java file and adding code.  It is recommended for you to follow and setup your own sample java room first following the steps outlined here:  https://github.com/gameontext/sample-room-java
   
  For our example, we will be retrieving current weather conditions using the IBM Weather Company data service on IBM Bluemix.  
     Note: Other data sources could be used where data formats may vary.
  
- #### Data service setup
+ # Data service setup
+ ====================
  
- In order to access the data, you will need to create a trial service on IBM Bluemix.  Login using your Bluemix account and look under **Catalog** then **Services**->**Data & Analytics**.  Scroll until you see **Weather Company Data** and click.  Review the terms and limits of the service and create a free account.
+In order to access the data, you will need to create a trial service on IBM Bluemix.  Login using your Bluemix account and look under **Catalog** then **Services**->**Data & Analytics**.  Scroll until you see **Weather Company Data** and click.  Review the terms and limits of the service and create a free account.
  
 After creation, click on your service from your dashboard.  There are three tabs shown.  Under **Service Credentials** you will find the userid and password needed to access the REST APIs.  You can see these under the **View Credentials** action.  
 
@@ -80,13 +80,13 @@ Just before the `default` of the `switch` statement, insert this code:
 ```
 
 A few things to note:
-1.  Overly simplified `if...then...else` statements are used
-2.  Markdown notation is used for formatting.
-3.  If the `remainder` variable is not null, > 5 characters, and an integer - we'll process the number.
+1 Overly simplified `if...then...else` statements are used
+2 Markdown notation is used for formatting.
+3 If the `remainder` variable is not null, > 5 characters, and an integer - we'll process the number.
   * This does not indicate a valid US zip code is used
   * Extra credit if you want to explore another REST API to validate the number given is a valid zip code
   * Pre-validating the input provides faster response to the room visitor and saves a call to the REST API given the data limits presented.
-4.  We'll make the REST API call in the method here `weatherGet(zipCode, endpoint, session, userId, username);`
+4 We'll make the REST API call in the method here `weatherGet(zipCode, endpoint, session, userId, username);`
 
 #### Making the REST API call
 In order to make the call, let's create a method
