@@ -5,17 +5,17 @@ This walk-through will demonstrate how you can use your Game On! room to access 
 
 #### Data service setup
 
-  In order to access the data, you will need to create a trial service on IBM Bluemix.  Login using your Bluemix account and look under **Catalog** then **Services**->**Data & Analytics**.  Scroll until you see **Weather Company Data** and click.  Review the terms and limits of the service and create a free account.
+In order to access the data, you will need to create a trial service on IBM Bluemix.  Login using your Bluemix account and look under **Catalog** then **Services**->**Data & Analytics**.  Scroll until you see **Weather Company Data** and click.  Review the terms and limits of the service and create a free account.
  
-  After creation, click on your service from your dashboard.  There are three tabs shown.  Under **Service Credentials** you will find the userid and password needed to access the REST APIs.  You can see these under the **View Credentials** action.  
+After creation, click on your service from your dashboard.  There are three tabs shown.  Under **Service Credentials** you will find the userid and password needed to access the REST APIs.  You can see these under the **View Credentials** action.  
 
-  Note:  The credentials are different from your Bluemix ID.  
+Note:  The credentials are different from your Bluemix ID.  
 
-  Under **Manage** you can review the details of the service offerings.  Under **Get Started** we want to choose **APIs** to view this link:  https://twcservice.mybluemix.net/rest-api/
+Under **Manage** you can review the details of the service offerings.  Under **Get Started** we want to choose **APIs** to view this link:  https://twcservice.mybluemix.net/rest-api/
 
-  This page will show the REST APIs available.  Feel free to peruse the APIs and even try them by supplying your credentials.  We will use the **Current Conditions : Weather Observations**-> **Site-Based Current Conditions by Postal Code**.  Our example will focus on US based postal codes.
+This page will show the REST APIs available.  Feel free to peruse the APIs and even try them by supplying your credentials.  We will use the **Current Conditions : Weather Observations**-> **Site-Based Current Conditions by Postal Code**.  Our example will focus on US based postal codes.
 
-  Now that your service has been created and you have explored the offerings, let's write some code!
+Now that your service has been created and you have explored the offerings, let's write some code!
 
 #### Programatically accessing the API
 
@@ -90,7 +90,9 @@ A few things to note:
 
 #### Making the REST API call
 In order to make the call, let's create a method
+
 `public static void weatherGet(String zipC, RoomEndpoint endpoint, Session session, String userId, String username)`
+
 Here we will 
   * Form our URL and connection
   * Retrieve the data from the service
@@ -132,6 +134,14 @@ Now that we have the open connection, let's verify we have a good return code.  
                 }
 ```
 
+#### Parse the returned data
+
+The HTTPS connection returns a string formatted as JSON.  But there are several ways that JSON information could be categorized - which is correct for us?  To figure that out, we need to go back to the service REST API page.
+
+We can start by looking at the details for the REST API.  We find both a *Model* and *Example Value* entry.  With *Model*, the data is described with field definitions.  *Example Value* shows us what the data would really look like.
+
+In our example, the returned data contains two JSON objects.  The first is named *metadata* while the second is *observation*.  If you look at the data for the "3-Day Intraday Forecast by Postal Code" API you will see two objects are returned but the second is a JSONArray.
+
 Now that we have a good return, let's get the data, format it, and display the current weather conditions.
 ```java
                 //We have the connection conn, get the data stream using createReader
@@ -153,7 +163,7 @@ Now that we have a good return, let's get the data, format it, and display the c
                 endpoint.sendMessage(session, Message.createBroadcastEvent("What's the weatherLike? " + username + ": " + zipC, userId, "Suddenly you hear a loud WHOOSH followed by a familar TADA!  You look at the instrument panel and read: \n\nThe weather condition in " + zipC + " is:\n\n"+wReport));
                 conn.disconnect();
 ```
-In our example, the returned data contains two JSON objects.  The first is named *metadata* while the second is *observation*.
+
 
 Of course, there may be times when the connection is not made so we place all of the code in a `try/catch` statement and display appropriate messages if desired.  When we are through the full code looks like this:
 
@@ -209,6 +219,30 @@ public static void weatherGet(String zipC, RoomEndpoint endpoint, Session sessio
 ```
 Note:  More advanced error handling and parsing is left as an exercise for the reader.
 
+#### Viewing the room
 
+With the code in place, you should be able to build and update your changes.  
+
+As you `/teleport` to your room, you can try out the `/help` command to view your new command.  Give the new `/weatherLike` command a try with 
+  * No parameters
+  * Too short of a parameter
+  * Non-numeric values
+
+When a valid zip code
+
+As you enter zip codes, you may find a value that is invalid.  An example would be:
+
+```
+/weatherLike 54321
+
+The instruments hum and the lights fade in and out.
+
+Suddenly you hear a loud KLAXON HORN followed by a familar 'Danger, Will Robinson! Danger!'. You look at the instrument panel and read:
+
+Attempted to find the Current Weather conditions for 54321 but instead received this HTTP response code:
+
+400 Bad Request
+```
+We have a good idea that the 400 return code is a bad zip code as that is the only part of the API we are supplying.  Other possible values are detailed on the REST API page.
 
 
