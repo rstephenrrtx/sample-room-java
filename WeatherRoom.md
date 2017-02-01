@@ -1,28 +1,4 @@
- 	Goal:  Use a REST API call to look up current weather conditions for a given zipcode
-	Data source:  IBM Weather Company data (others available)
-		Where:  Where is it located.
-		Ts&Cs:  Limits, etc...
-		Credentials:  How to find
-		Docs:  Show the REST API page...and Swagger doc
-		Focus on one API:  By zipcode
-	Add a new command:  Switch statement
-	Add the new command to the /help:  addCommand()
-	Parse/validate input:  Check for a zip code. 
-		Why - Design.  Return codes are limited.  (Extra:  Validate with USPS?)
-			Quicker feedback to user vs a lookup
-			Data limits
-	Build the URL
-	Make the connection
-		What could happen?
-		try/catch
-	Retrieve data
-	Parse data
-		Look at sample data/Swagger doc
-	Build response/format
-		JSON data fields
-		Markdown code for formatting
-	Display message
-	
+ 		
   This walk-through will demonstrate how you can use your Game On! room to access REST API data services.  We will be starting with the sample java file and adding code.  It is recommended for you to follow and setup your own sample java room first following the steps outlined here:  https://github.com/gameontext/sample-room-java
   
  For our example, we will be retrieving current weather conditions using the IBM Weather Company data service on IBM Bluemix.  
@@ -30,11 +6,15 @@
  
  #### Data service setup
  
- In order to access the data, you will need to create a trial service on IBM Bluemix.  Login using your Bluemix account and look under *Catalog* then *Services*->*Data & Analytics*.  Scroll until you see *Weather Company Data* and click.  Review the terms and limits of the service and create a free account.
+ In order to access the data, you will need to create a trial service on IBM Bluemix.  Login using your Bluemix account and look under **Catalog** then **Services**->**Data & Analytics**.  Scroll until you see **Weather Company Data** and click.  Review the terms and limits of the service and create a free account.
  
-After creation, click on your service from your dashboard.  There are three tabs shown.  Under *Service Credentials* you will ifnd the userid and password needed to access the REST APIs.  You can see these under the *View Credentials* action.  Note:  The credentials are different from your Bluemix ID.  Under *Manage* you can review the details of the service offerings.  Under *Get Started* we want to choose *APIs* to view this link:  https://twcservice.mybluemix.net/rest-api/
+After creation, click on your service from your dashboard.  There are three tabs shown.  Under **Service Credentials** you will find the userid and password needed to access the REST APIs.  You can see these under the **View Credentials** action.  
 
-This page will show the REST APIs available.  Feel free to peruse the APIs and even try them by supplying your credentials.  We will use the *Current Conditions : Weather Observations*-> Site-Based Current Conditions by Postal Code.  Our example will focus on US based postal codes.
+Note:  The credentials are different from your Bluemix ID.  
+
+Under **Manage** you can review the details of the service offerings.  Under **Get Started** we want to choose **APIs** to view this link:  https://twcservice.mybluemix.net/rest-api/
+
+This page will show the REST APIs available.  Feel free to peruse the APIs and even try them by supplying your credentials.  We will use the **Current Conditions : Weather Observations**-> **Site-Based Current Conditions by Postal Code**.  Our example will focus on US based postal codes.
 
 Now that your service has been created and you have explored the offerings, let's write some code!
 
@@ -57,7 +37,8 @@ We now need to add that command to the `processCommand` method.
 ##### Add command processing
 
 The method uses a `switch` to process the commands.  Let's add `/weatherlike` as a case.  Note:  All lowercase to process, mixed case for readability.  While we process the `/weatherlike` command, let's parse the `remainder` variable to determine if we have five (5) numbers.  No need in making a call to the REST API if we don't have numbers (due to the limits of the free service).  We'll also add some feedback to the room visitor so they know something is going on.
-Add `String zipCode;` to the beginning of the method.  Just before the `default` of the `switch` statement, insert this code:
+Add `String zipCode;` to the beginning of the method.  
+Just before the `default` of the `switch` statement, insert this code:
 
 ```java
                case "/weatherlike":
@@ -102,19 +83,19 @@ A few things to note:
 1.  Overly simplified `if...then...else` statements are used
 2.  Markdown notation is used for formatting.
 3.  If the `remainder` variable is not null, > 5 characters, and an integer - we'll process the number.
-..* This does not indicate a valid US zip code is used
-..* Extra credit if you want to explore another REST API to validate the number given is a valid zip code
-..* Pre-validating the input provides faster response to the room visitor and saves a call to the REST API given the data limits presented.
+  * This does not indicate a valid US zip code is used
+  * Extra credit if you want to explore another REST API to validate the number given is a valid zip code
+  * Pre-validating the input provides faster response to the room visitor and saves a call to the REST API given the data limits presented.
 4.  We'll make the REST API call in the method here `weatherGet(zipCode, endpoint, session, userId, username);`
 
 #### Making the REST API call
 In order to make the call, let's create a method
 `public static void weatherGet(String zipC, RoomEndpoint endpoint, Session session, String userId, String username)`
 Here we will 
-..* Form our URL and connection
-..* Retrieve the data from the service
-..* Parse the data and format for display
-..* Handle limited error conditions (for demo purposes)
+  * Form our URL and connection
+  * Retrieve the data from the service
+  * Parse the data and format for display
+  * Handle limited error conditions (for demo purposes)
 
 #### Building the URL
 
