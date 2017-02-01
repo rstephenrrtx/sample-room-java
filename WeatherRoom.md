@@ -21,28 +21,29 @@ Now that your service has been created and you have explored the offerings, let'
 
 You should have a cloned copy of the sample Java room.  We want to customize our room with a new command to find out "What's the weather like?" in a supplied zip code.  We will start by adding a custom command to the room.
 
-##### Add a command
+##### Add command 
 
-In the /src/main/java/org/gameontext/sample/RoomImplementation.java file, we need to make two additions.  First, we want our command to display when we type in `/help`.  In the `postContruct()` method, paste in this line:
+In the /src/main/java/org/gameontext/sample/RoomImplementation.java file, we need to make two additions.  We'll start by defining the command and the processing that occurs.  We'll add the command name to the `/help` command next.
+
+We add a new command here:
 
 ```java
-// Customize the room
-        roomDescription.addCommand("/weatherLike", "What's the weather like at <zipcode>");
+private void processCommand(String userId, String username, String content, RoomEndpoint endpoint, Session session)
 ```
 
-This will add the command `/weatherLike` to the `/help` display letting visitors know what they can do.
-We now need to add that command to the `processCommand` method.
+The method uses a `switch` to process the commands.  Let's add `/weatherlike` as a case.  
 
-##### Add command processing
+Note:  All lowercase to process, mixed case for readability.  
 
-The method uses a `switch` to process the commands.  Let's add `/weatherlike` as a case.  Note:  All lowercase to process, mixed case for readability.  While we process the `/weatherlike` command, let's parse the `remainder` variable to determine if we have five (5) numbers.  No need in making a call to the REST API if we don't have numbers (due to the limits of the free service).  We'll also add some feedback to the room visitor so they know something is going on.
+While we process the `/weatherlike` command, let's parse the `remainder` variable to determine if we have five (5) numbers.  No need in making a call to the REST API if we don't have numbers (due to the limits of the free service).  We'll also add some feedback to the room visitor so they know something is going on.
+
 Add `String zipCode;` to the beginning of the method.  
+
 Just before the `default` of the `switch` statement, insert this code:
 
 ```java
                case "/weatherlike":
-                // Custom command! /ping is added to the room description in the @PostConstruct method
-                // See RoomCommandsTest#testHandlePing*
+                // Custom command! /weatherlike is added to the room description in the @PostConstruct method
                 endpoint.sendMessage(session, Message.createBroadcastEvent("What's the weatherLike? " + username, userId, "The instruments hum and the lights fade in and out.  \n\n"));
 
                 if ( remainder == null ) {
@@ -87,6 +88,17 @@ A few things to note:
   * Extra credit if you want to explore another REST API to validate the number given is a valid zip code
   * Pre-validating the input provides faster response to the room visitor and saves a call to the REST API given the data limits presented.
 4. We'll make the REST API call in the method here `weatherGet(zipCode, endpoint, session, userId, username);`
+
+##### Add the command to the menu
+
+In the /src/main/java/org/gameontext/sample/RoomImplementation.java file, we need to make two additions.  First, we want our command to display when we type in `/help`.  In the `postContruct()` method, paste in this line:
+
+```java
+// Customize the room
+        roomDescription.addCommand("/weatherLike", "What's the weather like at <zipcode>");
+```
+
+This will add the command `/weatherLike` to the `/help` display letting visitors know what they can do.
 
 #### Making the REST API call
 In order to make the call, let's create a method
@@ -140,7 +152,7 @@ The HTTPS connection returns a string formatted as JSON.  But there are several 
 
 We can start by looking at the details for the REST API.  We find both a *Model* and *Example Value* entry.  With *Model*, the data is described with field definitions.  *Example Value* shows us what the data would really look like.
 
-In our example, the returned data contains two JSON objects.  The first is named *metadata* while the second is *observation*.  If you look at the data for the "3-Day Intraday Forecast by Postal Code" API you will see two objects are returned but the second is a JSONArray.
+In our example, the returned data contains two JSON objects.  The first is named *metadata* while the second is *observation*.  If you look at the data for the "3-Day Intraday Forecast by Postal Code" API you will see two objects are returned but the second is a JSONArray.  Since we want to see the values in *observation*, we access that object for our *result* variable.
 
 Now that we have a good return, let's get the data, format it, and display the current weather conditions.
 ```java
@@ -228,7 +240,19 @@ As you `/teleport` to your room, you can try out the `/help` command to view you
   * Too short of a parameter
   * Non-numeric values
 
-When a valid zip code
+When a valid zip code is provided, you will see success such as this:
+```
+/weatherLike 78742
+
+The instruments hum and the lights fade in and out.
+
+Suddenly you hear a loud WHOOSH followed by a familar TADA! You look at the instrument panel and read:
+
+The weather condition in 78742 is:
+
+Austin/Bergstrom reports the weather is Fair and 82°F. Wind is S at 16 Mph.
+
+```
 
 As you enter zip codes, you may find a value that is invalid.  An example would be:
 
@@ -243,6 +267,15 @@ Attempted to find the Current Weather conditions for 54321 but instead received 
 
 400 Bad Request
 ```
-We have a good idea that the 400 return code is a bad zip code as that is the only part of the API we are supplying.  Other possible values are detailed on the REST API page.
+We have a good idea that the 400 return code is a bad zip code (as that is the only part of the API we are dynamically supplying).  Other possible values are detailed on the REST API page.
 
+#### Summary
+
+while I am familiar with Java programming, I am by no means an expert.  This activity provided a few key lessons:
+  * Learning the Game On! room implementation
+  * An introduction to microservices
+  * A practical use of Bluemix services
+  * REST API interaction
+
+I probably made it harder than it needed to be so I hope you learn from my experience.
 
