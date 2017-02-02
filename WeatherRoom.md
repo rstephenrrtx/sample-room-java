@@ -14,17 +14,20 @@ The build commands are unchanged...with one exception.  As a learning process (a
   * cd sample-room-java
   * mvn install **-DskipTests**
   * mvn liberty:run-server
+
 I skip the tests - which are against the best practices I know - for time's sake.  By using the local "debug" page that is available via the Liberty server (http://localhost:9080/) I was able to test my updates locally before pushing it to my Bluemix container (https://book.gameontext.org/walkthroughs/deployRoom.html) to register (https://book.gameontext.org/walkthroughs/registerRoom.html) with https://game-on.org/
 
 #### Local testing
 I am fortunate to have a separate server available to stand up my own Game On server following these instructions:  https://book.gameontext.org/walkthroughs/local-docker.html  
 I would register my room server to the Game On server to verify some formatting prior to pushing the more polished product to the Game On site.  If you are able to do this I encourage it - it's a real time-saver.  It is possible to stand up Game On on your development server...but you may run into some port conflicts.  (Avoid these by assigning your Liberty server to a port *other* than 9080.  Update the *./target/wlp/usr/servers/gojava-room/server.xml*)
 
+*Note:*  I have some other minor/cosmetic additions in `/src/main/java/org/gameontext/sample/RoomDescription.java`...those will remain undocumented here (but you can see them in the code).
+
 ---
 ## Walk-Through
 This walk-through will demonstrate how you can use your Game On! room to access REST API data services.  We will be starting with the sample java file and adding code.  It is recommended for you to follow and setup your own sample java room first following the steps outlined here:  https://github.com/gameontext/sample-room-java
   
- For our example, we will be retrieving current weather conditions using the (https://console.ng.bluemix.net/catalog/services/weather-company-data/ "IBM Weather Company data service on IBM Bluemix").  
+ For our example, we will be retrieving current weather conditions using the [IBM Weather Company data service on IBM Bluemix] (https://console.ng.bluemix.net/catalog/services/weather-company-data/ "IBM Weather Company data service on IBM Bluemix").  
     Note: Other data sources could be used where data formats may vary.
 
 #### Data service setup
@@ -38,7 +41,7 @@ Note:  The credentials are different from your Bluemix ID.
 
 Under **Manage** you can review the details of the service offerings.  Under **Get Started** we want to choose **APIs** to view this link:  https://twcservice.mybluemix.net/rest-api/
 
-This page will show the REST APIs available.  Feel free to peruse the APIs and even try them by supplying your credentials.  We will use the **Current Conditions : Weather Observations**-> **Site-Based Current Conditions by Postal Code**.  Our example will focus on US based postal codes.
+This page will show the REST APIs available.  Feel free to peruse the APIs and even try them by supplying your credentials.  We will use the [**Current Conditions : Weather Observations**-> **Site-Based Current Conditions by Postal Code**](https://twcservice.mybluemix.net/rest-api/#!/Current_Conditions/v1locobscurrent).  Our example will focus on US based postal codes.
 
 Now that your service has been created and you have explored the offerings, let's write some code!
 
@@ -178,7 +181,9 @@ The HTTPS connection returns a string formatted as JSON.  But there are several 
 
 We can start by looking at the details for the REST API.  We find both a *Model* and *Example Value* entry.  With *Model*, the data is described with field definitions.  *Example Value* shows us what the data would really look like.
 
-In our example, the returned data contains two JSON objects.  The first is named *metadata* while the second is *observation*.  If you look at the data for the (https://twcservice.mybluemix.net/rest-api/#!/Intraday_Forecast/v1locfcstintraday3 "3-Day Intraday Forecast by Postal Code") API you will see two objects are returned but the second is a JSONArray.  Since we want to see the values in *observation*, we access that object for our *result* variable.
+In our example, the returned data contains two JSON objects.  The first is named *metadata* while the second is *observation*.  
+As another example, if you look at the data for the [3-Day Intraday Forecast by Postal Code] (https://twcservice.mybluemix.net/rest-api/#!/Intraday_Forecast/v1locfcstintraday3 ) API you will see two objects are returned but the second is a JSONArray.  
+Since we want to see the values in *observation*, we access that object for our *result* variable.
 
 Now that we have a good return, let's get the data, format it, and display the current weather conditions.
 ```java
@@ -293,7 +298,7 @@ Attempted to find the Current Weather conditions for 54321 but instead received 
 
 400 Bad Request
 ```
-We have a good idea that the 400 return code is a bad zip code (as that is the only part of the API we are dynamically supplying).  Other possible values are detailed on the REST API page.
+We have a good idea that the 400 return code is a bad zip code (as that is the only part of the API we are dynamically supplying).  Other possible return code values are detailed on the REST API page.
 
 #### Summary
 
@@ -303,7 +308,7 @@ while I am familiar with Java programming, I am by no means an expert.  This act
   * A practical use of Bluemix services
   * REST API interaction
 
-I probably made it harder than it needed to be so I hope you learn from my experience.
+I probably made it harder than it needed to be so I hope you learn from my experience.  Looking back, I can't believe I made it that hard on myself.  
 
 How would you extend this room?  Have fun!
 
