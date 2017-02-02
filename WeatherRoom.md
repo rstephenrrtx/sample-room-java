@@ -17,6 +17,15 @@ The build commands are unchanged...with one exception.  As a learning process (a
 
 I skip the tests - which are against the best practices I know - for time's sake.  By using the local "debug" page that is available via the Liberty server (http://localhost:9080/) I was able to test my updates locally before pushing it to my Bluemix container (https://book.gameontext.org/walkthroughs/deployRoom.html) to register (https://book.gameontext.org/walkthroughs/registerRoom.html) with https://game-on.org/
 
+
+I also included these libraries
+```java
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.net.ssl.HttpsURLConnection;
+```
+
 #### Local testing
 I am fortunate to have a separate server available to stand up my own Game On server following these instructions:  https://book.gameontext.org/walkthroughs/local-docker.html  
 I would register my room server to the Game On server to verify some formatting prior to pushing the more polished product to the Game On site.  If you are able to do this I encourage it - it's a real time-saver.  It is possible to stand up Game On on your development server...but you may run into some port conflicts.  (Avoid these by assigning your Liberty server to a port *other* than 9080.  Update the *./target/wlp/usr/servers/gojava-room/server.xml*)
