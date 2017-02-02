@@ -1,11 +1,36 @@
+# Weather Room for Game On!
+## A Sample REST API room
+
+Welcome to the Weather Room.  This sample code includes some overview usage information and a walk-through of how you can create a similar room.
+
+The concept for the room is simple:  Create a room that will use REST API to display some information.  I also wanted to use this as my own learning opportunity (as I'm not the world's greatest Java developer).  Sharing my thought process (in retrospect) helps me and I hope it helps you too.
+
+### Overview
+My room was created by forking the Game On Java sample room here:  https://github.com/gameontext/sample-room-java  I encourage you to follow that example to setup your own code first.
+
+The build commands are unchanged...with one exception.  As a learning process (and wanting to have the room available as quickly as possible) I changed the build instructions slightly.
+
+#### Build Steps
+  * cd sample-room-java
+  * mvn install **-DskipTests**
+  * mvn liberty:run-server
+I skip the tests - which are against the best practices I know - for time's sake.  By using the local "debug" page that is available via the Liberty server (http://localhost:9080/) I was able to test my updates locally before pushing it to my Bluemix container (https://book.gameontext.org/walkthroughs/deployRoom.html) to register (https://book.gameontext.org/walkthroughs/registerRoom.html) with https://game-on.org/
+
+#### Local testing
+I am fortunate to have a separate server available to stand up my own Game On server following these instructions:  https://book.gameontext.org/walkthroughs/local-docker.html  
+I would register my room server to the Game On server to verify some formatting prior to pushing the more polished product to the Game On site.  If you are able to do this I encourage it - it's a real time-saver.  It is possible to stand up Game On on your development server...but you may run into some port conflicts.  (Avoid these by assigning your Liberty server to a port *other* than 9080.  Update the *./target/wlp/usr/servers/gojava-room/server.xml*)
+
+---
+## Walk-Through
 This walk-through will demonstrate how you can use your Game On! room to access REST API data services.  We will be starting with the sample java file and adding code.  It is recommended for you to follow and setup your own sample java room first following the steps outlined here:  https://github.com/gameontext/sample-room-java
   
- For our example, we will be retrieving current weather conditions using the IBM Weather Company data service on IBM Bluemix.  
+ For our example, we will be retrieving current weather conditions using the (https://console.ng.bluemix.net/catalog/services/weather-company-data/ "IBM Weather Company data service on IBM Bluemix").  
     Note: Other data sources could be used where data formats may vary.
 
 #### Data service setup
 
 In order to access the data, you will need to create a trial service on IBM Bluemix.  Login using your Bluemix account and look under **Catalog** then **Services**->**Data & Analytics**.  Scroll until you see **Weather Company Data** and click.  Review the terms and limits of the service and create a free account.
+**__Note:__** Verify the number of calls for your service.
  
 After creation, click on your service from your dashboard.  There are three tabs shown.  Under **Service Credentials** you will find the userid and password needed to access the REST APIs.  You can see these under the **View Credentials** action.  
 
@@ -35,11 +60,12 @@ The method uses a `switch` to process the commands.  Let's add `/weatherlike` as
 
 Note:  All lowercase to process, mixed case for readability.  
 
-While we process the `/weatherlike` command, let's parse the `remainder` variable to determine if we have five (5) numbers.  No need in making a call to the REST API if we don't have numbers (due to the limits of the free service).  We'll also add some feedback to the room visitor so they know something is going on.
+The method will parse the commandline input into the `firstWord` and `remainder` String variables.  While we process the `/weatherlike` command, let's parse the `remainder` variable into a new variable `zipCode` to determine if we have five (5) numbers.
+No need in making a call to the REST API if we don't have numbers (due to the limits of the free service).  We'll also add some feedback to the room visitor so they know something is going on.
 
 Add `String zipCode;` to the beginning of the method.  
 
-Just before the `default` of the `switch` statement, insert this code:
+Just before the `default` of the `switch` statement, insert this code (or similar):
 
 ```java
                case "/weatherlike":
@@ -58,7 +84,7 @@ Just before the `default` of the `switch` statement, insert this code:
                        endpoint.sendMessage(session, Message.createBroadcastEvent("What's the weatherLike? " + username + ": " + remainder, userId, "Suddenly you hear a loud CLANK!  You look at the instrument panel and read:\n\n 'Whoopsie!  You need at least 5 digits for a valid zip code.  Try again.'  "));
                     }
                     else {
-                       // There are 5 characters, are they numbers?i
+                       // There are 5 characters, are they numbers?
                        try
                        {
                         // the String to int conversion happens here
@@ -81,7 +107,7 @@ Just before the `default` of the `switch` statement, insert this code:
 
 A few things to note:
 
-1. Overly simplified `if...then...else` statements are used
+1. Overly simplified/ugly `if...then...else` statements are used
 2. Markdown notation is used for formatting.
 3. If the `remainder` variable is not null, > 5 characters, and an integer - we'll process the number.
   * This does not indicate a valid US zip code is used
@@ -91,7 +117,7 @@ A few things to note:
 
 ##### Add the command to the menu
 
-In the /src/main/java/org/gameontext/sample/RoomImplementation.java file, we need to make two additions.  First, we want our command to display when we type in `/help`.  In the `postContruct()` method, paste in this line:
+Now that we can process the command, we want our command to display when we type in `/help`.  In the `postContruct()` method, paste in this line:
 
 ```java
 // Customize the room
@@ -101,7 +127,7 @@ In the /src/main/java/org/gameontext/sample/RoomImplementation.java file, we nee
 This will add the command `/weatherLike` to the `/help` display letting visitors know what they can do.
 
 #### Making the REST API call
-In order to make the call, let's create a method
+In order to make the API call, let's create a method
 
 `public static void weatherGet(String zipC, RoomEndpoint endpoint, Session session, String userId, String username)`
 
@@ -148,11 +174,11 @@ Now that we have the open connection, let's verify we have a good return code.  
 
 #### Parse the returned data
 
-The HTTPS connection returns a string formatted as JSON.  But there are several ways that JSON information could be categorized - which is correct for us?  To figure that out, we need to go back to the service REST API page.
+The HTTPS connection returns a string formatted as JSON.  But there are several ways that JSON information could be presented - which is correct for us?  To figure that out, we need to go back to the service REST API page.  https://twcservice.mybluemix.net/rest-api/
 
 We can start by looking at the details for the REST API.  We find both a *Model* and *Example Value* entry.  With *Model*, the data is described with field definitions.  *Example Value* shows us what the data would really look like.
 
-In our example, the returned data contains two JSON objects.  The first is named *metadata* while the second is *observation*.  If you look at the data for the "3-Day Intraday Forecast by Postal Code" API you will see two objects are returned but the second is a JSONArray.  Since we want to see the values in *observation*, we access that object for our *result* variable.
+In our example, the returned data contains two JSON objects.  The first is named *metadata* while the second is *observation*.  If you look at the data for the (https://twcservice.mybluemix.net/rest-api/#!/Intraday_Forecast/v1locfcstintraday3 "3-Day Intraday Forecast by Postal Code") API you will see two objects are returned but the second is a JSONArray.  Since we want to see the values in *observation*, we access that object for our *result* variable.
 
 Now that we have a good return, let's get the data, format it, and display the current weather conditions.
 ```java
@@ -229,7 +255,7 @@ public static void weatherGet(String zipC, RoomEndpoint endpoint, Session sessio
         }
 }
 ```
-Note:  More advanced error handling and parsing is left as an exercise for the reader.
+Note:  More advanced error handling and parsing is left as an exercise for the reader.  ;)
 
 #### Viewing the room
 
@@ -278,4 +304,6 @@ while I am familiar with Java programming, I am by no means an expert.  This act
   * REST API interaction
 
 I probably made it harder than it needed to be so I hope you learn from my experience.
+
+How would you extend this room?  Have fun!
 
