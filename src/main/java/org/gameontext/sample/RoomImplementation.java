@@ -23,8 +23,21 @@ import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.json.Json;
 import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.json.JsonArray;
+//import java.lang.Object;
+//import org.json.JSONObject;
 import javax.websocket.Session;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import javax.net.ssl.HttpsURLConnection;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.gameontext.sample.map.client.MapClient;
 import org.gameontext.sample.protocol.Message;
@@ -43,8 +56,8 @@ import org.gameontext.sample.protocol.RoomEndpoint;
 public class RoomImplementation {
 
     public static final String LOOK_UNKNOWN = "It doesn't look interesting";
-    public static final String UNKNOWN_COMMAND = "This room is a basic model. It doesn't understand `%s`";
-    public static final String UNSPECIFIED_DIRECTION = "You didn't say which way you wanted to go.";
+    public static final String UNKNOWN_COMMAND = "This room is run by highly trained hamsters. Sadly, their training is limited and they don't understand `%s`";
+    public static final String UNSPECIFIED_DIRECTION = "You didn't say which way you wanted to go so you just stand there...hoping the wind will move you.  It doesn't.";
     public static final String UNKNOWN_DIRECTION = "There isn't a door in that direction (%s)";
     public static final String GO_FORTH = "You head %s";
     public static final String HELLO_ALL = "%s is here";
@@ -76,7 +89,7 @@ public class RoomImplementation {
         }
 
         // Customize the room
-        roomDescription.addCommand("/ping", "Does this work?");
+        roomDescription.addCommand("/weatherLike", "What's the weather like at <zipcode>");
 
         Log.log(Level.INFO, this, "Room initialized: {0}", roomDescription);
     }
@@ -143,6 +156,8 @@ public class RoomImplementation {
             //		    "userId": "<userId>"
             //		}
             // See RoomImplementationTest#testRoomGoodbye
+            // Remove the 'weatherLike' command from the list of commands
+            //roomDescription.removeCommand("/weatherLike");
 
             // Say goodbye to person leaving the room
             endpoint.sendMessage(session,
@@ -192,6 +207,7 @@ public class RoomImplementation {
 
         String firstWord;
         String remainder;
+        String zipCode;
 
         int firstSpace = contentToLower.indexOf(' '); // find the first space
         if ( firstSpace < 0 || contentToLower.length() <= firstSpace ) {
@@ -239,18 +255,41 @@ public class RoomImplementation {
                 }
                 break;
 
-            case "/ping":
+            case "/weatherlike":
                 // Custom command! /ping is added to the room description in the @PostConstruct method
                 // See RoomCommandsTest#testHandlePing*
+                endpoint.sendMessage(session, Message.createBroadcastEvent("What's the weatherLike? " + username, userId, "The instruments hum and the lights fade in and out.  \n\n"));
 
                 if ( remainder == null ) {
-                    endpoint.sendMessage(session,
-                            Message.createBroadcastEvent("Ping! Pong sent to " + username, userId, "Ping! Pong!"));
-                } else {
-                    endpoint.sendMessage(session,
-                            Message.createBroadcastEvent("Ping! Pong sent to " + username + ": " + remainder, userId, "Ping! Pong! " + remainder));
-                }
+                    endpoint.sendMessage(session, Message.createBroadcastEvent("What's the weatherLike? " + username, userId, "You concentrate really, really hard.\n\nYou quietly look around and glance at the instrument panel and read:\n\n 'It's room temperature.  Try typing a zip code with the command.'"));
 
+                } else {
+                    //Need to pre-process the remainder to ensure
+                    //   a) there are 5 characters
+                    //   b) the characters are numbers.  Won't validate the numbers are a valid zipcode.  We're not gurus.
+                    if (remainder.length() < 5) {
+                       //message that we need 5 characters for a valid zip
+                       endpoint.sendMessage(session, Message.createBroadcastEvent("What's the weatherLike? " + username + ": " + remainder, userId, "Suddenly you hear a loud CLANK!  You look at the instrument panel and read:\n\n 'Whoopsie!  You need at least 5 digits for a valid zip code.  Try again.'  "));
+                    }
+                    else {
+                       // There are 5 characters, are they numbers?i
+                       try
+                       {
+                        // the String to int conversion happens here
+                        int i = Integer.parseInt(remainder.trim());
+                        // Conversion worked, let's get the zipCode as string
+                        zipCode = remainder.substring(0,5);
+                        weatherGet(zipCode, endpoint, session, userId, username);
+                       }
+                       catch (NumberFormatException nfe)
+                       {
+                        // If we get here, the conversion failed!  It wasn't a numeric value so print a message
+                        // This doesn't mean it is a valid zip code, just means there were non-numeric characters entered.
+                        endpoint.sendMessage(session, Message.createBroadcastEvent("What's the weatherLike? " + username + ": " + remainder, userId, "Suddenly you hear a loud KER-THUNK!  You look at the instrument panel and read:\n\n Are you trying to choke me?  You need 5 NUMBERS for a valid zip code.  I'm not that smart.  Try again.  "));
+
+                       }
+                    }
+                }
                 break;
 
             default:
@@ -315,4 +354,53 @@ public class RoomImplementation {
     public boolean ok() {
         return mapClient.ok();
     }
+
+    public static void weatherGet(String zipC, RoomEndpoint endpoint, Session session, String userId, String username){
+    try {
+
+                String output = "";
+                //Build our URL with the zipCode
+		URL url = new URL("https://twcservice.mybluemix.net/api/weather/v1/location/"+zipC+"%3A4%3AUS/observations.json?language=en-US&units=e");
+                //uid/password will be unique to the Weather Company service you setup
+                String uid="8b1ee30c-411a-41d3-bf9d-76f30216ba5a";
+                String password="UBvuhrHnTU";
+		HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+		conn.setRequestMethod("GET");
+		conn.setRequestProperty("Accept", "application/json");
+                conn.setRequestProperty ("Authorization", "Basic " + java.util.Base64.getEncoder().encodeToString( (uid+":"+password).getBytes() ));
+		if (conn.getResponseCode() != 200) {
+                   //No code here to handle every error condition.  Just display the error message.
+                   String rc =  Integer.toString(conn.getResponseCode());
+                   endpoint.sendMessage(session, Message.createBroadcastEvent("What's the weatherLike? " + username + ": " + zipC, userId, "Suddenly you hear a loud KLAXON HORN followed by a familar 'Danger, Will Robinson! Danger!'.  You look at the instrument panel and read: \n\nAttempted to find the Current Weather conditions for " + zipC + " but instead received this HTTP response code: \n\n " + rc + " " + conn.getResponseMessage()));
+		}
+                //We have the connection conn, get the data stream using createReader
+                JsonReader rdr = Json.createReader(conn.getInputStream());
+                //Read the JsonReader into a JsonObject
+                JsonObject obj = rdr.readObject();
+                //Since the data returns 2 JsonObjects named "metadata" and "observation", let's get the data for the observation as our result
+                JsonObject result = obj.getJsonObject("observation");
+                // When we review the actual datastream, we find each field and assign to a variable.
+                // As we want to display the values as text, we cast the numeric values to String.
+                // We retrieve the value by stating the key name
+                String wName=result.getString("obs_name");
+                String wPhrase=result.getString("wx_phrase");
+                String wTemp=Integer.toString(result.getInt("temp"));
+                String wWdir=result.getString("wdir_cardinal");
+                String wWsp=Integer.toString(result.getInt("wspd"));
+                // Here we build the weather report phrase by combining the above variables with some formatting.
+                String wReport = wName+" reports the weather is "+wPhrase+ " and " +wTemp+"°F.  Wind is "+wWdir+" at "+wWsp+" Mph.";
+                endpoint.sendMessage(session, Message.createBroadcastEvent("What's the weatherLike? " + username + ": " + zipC, userId, "Suddenly you hear a loud WHOOSH followed by a familar TADA!  You look at the instrument panel and read: \n\nThe weather condition in " + zipC + " is:\n\n"+wReport));
+		conn.disconnect();
+
+	  } catch (MalformedURLException e) {
+
+//        	endpoint.sendMessage(session, Message.createBroadcastEvent("What's the weatherLike? " + username + ": " + zipC, userId,	"MalformedURLException of some type. "));
+
+	  } catch (IOException e) {
+
+//	        endpoint.sendMessage(session, Message.createBroadcastEvent("What's the weatherLike? " + username + ": " + zipC, userId,"Error message:"));
+
+	  }
+
+	}
 }

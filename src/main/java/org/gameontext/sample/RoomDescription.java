@@ -40,9 +40,9 @@ public class RoomDescription {
     private final JsonObject EMPTY_COMMANDS = Json.createObjectBuilder().build();
     private final JsonArray EMPTY_INVENTORY = Json.createArrayBuilder().build();
 
-    private String name = "nickName";
-    private String fullName = "A room with no full name";
-    private String description = "An undescribed room (or perhaps the data hasn't been fetched from the map)";
+    private String name = "weather";
+    private String fullName = "A Weather Room";
+    private String description = "Welcome to the Weather Room.  Here you see all types of maps, globes, thermometers, and weather vanes.  On one wall you see a window.  Another wall has a TV with the Weather Channel playing...you can't hear it.  You want to know what the current temperature in your hometown is so you type in a special command followed by the zip code.....  ";
 
     private Map<String, String> commands = new ConcurrentHashMap<>();
     private JsonObject commandObj = null;
