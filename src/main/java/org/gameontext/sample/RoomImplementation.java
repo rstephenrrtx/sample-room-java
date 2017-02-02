@@ -261,7 +261,7 @@ public class RoomImplementation {
                 endpoint.sendMessage(session, Message.createBroadcastEvent("What's the weatherLike? " + username, userId, "The instruments hum and the lights fade in and out.  \n\n"));
 
                 if ( remainder == null ) {
-                    endpoint.sendMessage(session, Message.createBroadcastEvent("What's the weatherLike? " + username, userId, "You concentrate really, really hard.\n\nYou quietly look around and glance at the instrument panel and read:\n\n 'It's room temperature.  Try typing a zip code with the command.'"));
+                    endpoint.sendMessage(session, Message.createBroadcastEvent("What's the weatherLike? " + username, userId, "You concentrate really, really hard.\n\nYou quietly look around and glance at the instrument panel and read:\n\n `It's room temperature.  Try typing a zip code with the command.`"));
 
                 } else {
                     //Need to pre-process the remainder to ensure
@@ -269,7 +269,7 @@ public class RoomImplementation {
                     //   b) the characters are numbers.  Won't validate the numbers are a valid zipcode.  We're not gurus.
                     if (remainder.length() < 5) {
                        //message that we need 5 characters for a valid zip
-                       endpoint.sendMessage(session, Message.createBroadcastEvent("What's the weatherLike? " + username + ": " + remainder, userId, "Suddenly you hear a loud CLANK!  You look at the instrument panel and read:\n\n 'Whoopsie!  You need at least 5 digits for a valid zip code.  Try again.'  "));
+                       endpoint.sendMessage(session, Message.createBroadcastEvent("What's the weatherLike? " + username + ": " + remainder, userId, "Suddenly you hear a loud **_CLANK!_**  You look at the instrument panel and read:\n\n `Whoopsie!  You need at least 5 digits for a valid zip code.  Try again.`  "));
                     }
                     else {
                        // There are 5 characters, are they numbers?i
@@ -285,7 +285,7 @@ public class RoomImplementation {
                        {
                         // If we get here, the conversion failed!  It wasn't a numeric value so print a message
                         // This doesn't mean it is a valid zip code, just means there were non-numeric characters entered.
-                        endpoint.sendMessage(session, Message.createBroadcastEvent("What's the weatherLike? " + username + ": " + remainder, userId, "Suddenly you hear a loud KER-THUNK!  You look at the instrument panel and read:\n\n Are you trying to choke me?  You need 5 NUMBERS for a valid zip code.  I'm not that smart.  Try again.  "));
+                        endpoint.sendMessage(session, Message.createBroadcastEvent("What's the weatherLike? " + username + ": " + remainder, userId, "Suddenly you hear a loud **_KER-THUNK!_**  You look at the instrument panel and read:\n\n `Are you trying to choke me?  You need 5 NUMBERS for a valid zip code.  I'm not that smart.  Try again.`  "));
 
                        }
                     }
@@ -362,8 +362,8 @@ public class RoomImplementation {
                 //Build our URL with the zipCode
 		URL url = new URL("https://twcservice.mybluemix.net/api/weather/v1/location/"+zipC+"%3A4%3AUS/observations.json?language=en-US&units=e");
                 //uid/password will be unique to the Weather Company service you setup
-                String uid="8b1ee30c-411a-41d3-bf9d-76f30216ba5a";
-                String password="UBvuhrHnTU";
+                String uid="XXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+                String password="YYYYYYYYYYYYYYYYY";
 		HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 		conn.setRequestMethod("GET");
 		conn.setRequestProperty("Accept", "application/json");
@@ -371,7 +371,7 @@ public class RoomImplementation {
 		if (conn.getResponseCode() != 200) {
                    //No code here to handle every error condition.  Just display the error message.
                    String rc =  Integer.toString(conn.getResponseCode());
-                   endpoint.sendMessage(session, Message.createBroadcastEvent("What's the weatherLike? " + username + ": " + zipC, userId, "Suddenly you hear a loud KLAXON HORN followed by a familar 'Danger, Will Robinson! Danger!'.  You look at the instrument panel and read: \n\nAttempted to find the Current Weather conditions for " + zipC + " but instead received this HTTP response code: \n\n " + rc + " " + conn.getResponseMessage()));
+                   endpoint.sendMessage(session, Message.createBroadcastEvent("What's the weatherLike? " + username + ": " + zipC, userId, "Suddenly you hear a loud **_KLAXON HORN_** followed by a familar **'Danger, Will Robinson! Danger!'**.  You look at the instrument panel and read: \n\n`Attempted to find the Current Weather conditions for " + zipC + " but instead received this HTTP response code:` \n\n " + rc + " " + conn.getResponseMessage()));
 		}
                 //We have the connection conn, get the data stream using createReader
                 JsonReader rdr = Json.createReader(conn.getInputStream());
@@ -388,8 +388,8 @@ public class RoomImplementation {
                 String wWdir=result.getString("wdir_cardinal");
                 String wWsp=Integer.toString(result.getInt("wspd"));
                 // Here we build the weather report phrase by combining the above variables with some formatting.
-                String wReport = wName+" reports the weather is "+wPhrase+ " and " +wTemp+"°F.  Wind is "+wWdir+" at "+wWsp+" Mph.";
-                endpoint.sendMessage(session, Message.createBroadcastEvent("What's the weatherLike? " + username + ": " + zipC, userId, "Suddenly you hear a loud WHOOSH followed by a familar TADA!  You look at the instrument panel and read: \n\nThe weather condition in " + zipC + " is:\n\n"+wReport));
+                String wReport = "```"+wName+" reports the weather is "+wPhrase+ " and " +wTemp+"°F.  Wind is "+wWdir+" at "+wWsp+" Mph.```";
+                endpoint.sendMessage(session, Message.createBroadcastEvent("What's the weatherLike? " + username + ": " + zipC, userId, "Suddenly you hear a loud **_WHOOSH!_** followed by a familar **_TADA!_**  You look at the instrument panel and read: \n\n`The weather condition in` " + zipC + " `is:`\n\n"+wReport));
 		conn.disconnect();
 
 	  } catch (MalformedURLException e) {
