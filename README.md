@@ -42,8 +42,9 @@ This walk-through will demonstrate how you can use your Game On! room to access 
 #### Data service setup
 
 In order to access the data, you will need to create a trial service on IBM Bluemix.  Login using your Bluemix account and look under **Catalog** then **Services**->**Data & Analytics**.  Scroll until you see **Weather Company Data** and click.  Review the terms and limits of the service and create a free account.
-**__Note:__** Verify the number of calls for your service.
- 
+
+> **__Note:__** Verify the number of calls for your service.  February 2017 lists a 10,000 API call limit for your free account.  This should be sufficient for learning/demo purposes.
+
 After creation, click on your service from your dashboard.  There are three tabs shown.  Under **Service Credentials** you will find the userid and password needed to access the REST APIs.  You can see these under the **View Credentials** action.  
 
 Note:  The credentials are different from your Bluemix ID.  
