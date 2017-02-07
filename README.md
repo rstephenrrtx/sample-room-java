@@ -5,15 +5,17 @@ Welcome to the Weather Room.  This sample code includes some overview usage info
 
 The concept for the room is simple:  Create a room that will use REST API to display some information.  I also wanted to use this as my own learning opportunity (as I'm not the world's greatest Java developer).  Sharing my thought process (in retrospect) helps me and I hope it helps you too.
 
-### Overview
+### Room Overview 
 My room was created by forking the Game On Java sample room here:  https://github.com/gameontext/sample-room-java  I encourage you to follow that example to setup your own code first.
 
 The build commands are unchanged...with one exception.  As a learning process (and wanting to have the room available as quickly as possible) I changed the build instructions slightly.
 
-#### Build Steps
-  * cd sample-room-java
-  * mvn install **-DskipTests**
-  * mvn liberty:run-server
+*Modified Build Steps*
+
+  * cd sample-room-java 
+  * mvn install **-DskipTests** 
+  * mvn liberty:run-server 
+
 
 I skip the tests - which are against the best practices I know - for time's sake.  By using the local "debug" page that is available via the Liberty server (http://localhost:9080/) I was able to test my updates locally before pushing it to my Bluemix container (https://book.gameontext.org/walkthroughs/deployRoom.html) to register (https://book.gameontext.org/walkthroughs/registerRoom.html) with https://game-on.org/
 
@@ -28,9 +30,22 @@ import javax.net.ssl.HttpsURLConnection;
 
 #### Local testing
 I am fortunate to have a separate server available to stand up my own Game On server following these instructions:  https://book.gameontext.org/walkthroughs/local-docker.html  
-I would register my room server to the Game On server to verify some formatting prior to pushing the more polished product to the Game On site.  If you are able to do this I encourage it - it's a real time-saver.  It is possible to stand up Game On on your development server...but you may run into some port conflicts.  (Avoid these by assigning your Liberty server to a port *other* than 9080.  Update the *./target/wlp/usr/servers/gojava-room/server.xml*)
+I would register my room server to the Game On server to verify some formatting prior to pushing the more polished product to the Game On site.  If you 
+are able to do this I encourage it - it's a real time-saver.  It is possible to stand up Game On on your development server...but you may run into some port conflicts.  (Avoid these by assigning your Liberty server to a port *other* than 9080.  Update the *./target/wlp/usr/servers/gojava-room/server.xml*)
 
 *Note:*  I have some other minor/cosmetic additions in `/src/main/java/org/gameontext/sample/RoomDescription.java`...those will remain undocumented here (but you can see them in the code).
+
+> **Important Note:**
+
+> Before you can build and test your version of this code, you will need to 
+
+> 1 Create your own Weather Data Service 
+
+> 2 Supply your own uid/password credentials (or you will receive a 401 Unauthorized error)
+
+> 3 Use the above Modified Build Steps to build your room `
+
+
 
 ---
 ## Walk-Through
@@ -228,8 +243,8 @@ public static void weatherGet(String zipC, RoomEndpoint endpoint, Session sessio
                 //Build our URL with the zipCode
                 URL url = new URL("https://twcservice.mybluemix.net/api/weather/v1/location/"+zipC+"%3A4%3AUS/observations.json?language=en-US&units=e");
                 //uid/password will be unique to the Weather Company service you setup
-                String uid="8b1ee30c-411a-41d3-bf9d-76f30216ba5a";
-                String password="UBvuhrHnTU";
+                String uid="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+                String password="YYYYYYYYYYY";
                 HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Accept", "application/json");
@@ -310,6 +325,7 @@ Attempted to find the Current Weather conditions for 54321 but instead received 
 ```
 We have a good idea that the 400 return code is a bad zip code (as that is the only part of the API we are dynamically supplying).  Other possible return code values are detailed on the REST API page.
 
+---
 #### Summary
 
 while I am familiar with Java programming, I am by no means an expert.  This activity provided a few key lessons:
